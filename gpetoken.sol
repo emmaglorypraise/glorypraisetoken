@@ -9,7 +9,7 @@ contract GPEToken is IERC20{
     string public name = "Glory Praise Emmanuel Token";
     string public symbol = "GPE";
     uint public decimals = 18;
-    uint public override totalSupply = 1000000;
+    uint public override totalSupply = 1000000 * 10 ** 18 ;
 
     constructor(){
         balanceOf[msg.sender] = totalSupply;
@@ -46,13 +46,34 @@ contract GPEToken is IERC20{
         return true;
     }
 
-    function deposit(address _from, address _to, uint256 _amount) public override returns(bool) {
+    // function deposit(address _from, address _to, uint256 _amount) public returns(bool) {
+    //     require(balanceOf[msg.sender] >= _amount, "You dont have enough token to send");
+    //     balanceOf[_from] -= _amount;
+    //     balanceOf[_to] += _amount;
+    //     emit Transfer(_from, _to, _amount);
+    //     return true;
+    // }
+
+    event Received(uint value);
+
+    function deposit(address _from, address _to, uint256 _amount) public payable {
         require(balanceOf[msg.sender] >= _amount, "You dont have enough token to send");
         balanceOf[_from] -= _amount;
         balanceOf[_to] += _amount;
-        
         emit Transfer(_from, _to, _amount);
-        return true;
+        emit Received(msg.value);
+    }
+
+    function getBalance() public view returns (uint256) {
+        return address(this).balance;
+    }
+
+    fallback() external payable {
+        emit Received(msg.value);
+    }
+
+    receive() external payable {
+        emit Received(msg.value);
     }
 
 }
